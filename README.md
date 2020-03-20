@@ -1,4 +1,3 @@
-# libpy
-Pythonを  
-　つくってあそぶ  
-最上川
+# BookCollectionService
+- https://github.com/nesosuke/libpy からのself fork
+- カンバン: https://github.com/users/nesosuke/projects/2
