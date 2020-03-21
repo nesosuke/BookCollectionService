@@ -6,6 +6,7 @@ import sys
 ISBN = sys.argv[1]
 response = req.get('https://api.openbd.jp/v1/get?isbn=' + str(ISBN)).json()[0]
 BookInfo = response.get("summary")
+
 Title = BookInfo.get("title")
 Author = BookInfo.get("author")
 Publisher = BookInfo.get("publisher")
