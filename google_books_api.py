@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-# #Google BooksでAPIを叩く
 import requests as req
 import sys
 
