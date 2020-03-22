@@ -1,1 +1,10 @@
-ISBN, Title, Author, Publisher, RawResponse, Date, ReadStatus
+ISBN, 
+Title, 
+Author, 
+Publisher, 
+RawResponse, 
+Read_at,
+Published_at, 
+ReadStatus, 
+ReadCount, 
+ID
