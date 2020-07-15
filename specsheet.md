@@ -1,3 +1,15 @@
+## v0.0.1案
+
+- `convert.py`
+    入力がISBN10ならISBN13に変換、ISBN13はそのままにする
+- `getinfo.py`
+    ISBN13から書籍情報の取得(api.openbd.jpを利用)
+- `addcount.py`
+    isbnを引数として`record ={'isbn': count}`の辞書にあれば `count += 1`、なければ作成
+- `getcount.py`
+    isbnを引数として辞書`record`からcount数の表示
+
+
 ## やりたいこと
 
 1. 記録部分
