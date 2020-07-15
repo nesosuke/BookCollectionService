@@ -1,0 +1,2 @@
+{'isbn': '9784101010137', 'title': 'こころ', 'volume': '', 'series': '', 'publisher': '新潮社', 'pubdate': '2004-03', 'cover': 'https://cover.openbd.jp/9784101010137.jpg', 'author': '夏目漱石／著 小林勝／著 伊藤昇／著'}
+{'isbn': '9784101006055', 'title': '人間失格', 'volume': '', 'series': '', 'publisher': '新潮社', 'pubdate': '2006-01', 'cover': 'https://cover.openbd.jp/9784101006055.jpg', 'author': '太宰治／著'}
