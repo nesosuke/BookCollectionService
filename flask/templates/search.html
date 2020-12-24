@@ -1,7 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
 <h3>search result</h3>
-書名: 
-{{ booktitle }}
-
+<p>
+書名: {{ booktitle }}<br>
+著者: {{ bookauthor }}<br>
+出版社: {{ publisher }}<br>
+</p>
+<br>
+<a href="/">back to home</a>
 {% endblock %}
