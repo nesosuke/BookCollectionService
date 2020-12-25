@@ -8,7 +8,7 @@ def search(isbn):
         json = req.get('https://api.openbd.jp/v1/get?isbn=' + str(isbn)).json()
         Result = json[0].get('summary')
     except:    
-        Result = "Error"
+        Result = False
     return Result
 
 

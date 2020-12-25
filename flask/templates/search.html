@@ -1,11 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
-<h3>search result</h3>
-<p>
-書名: {{ booktitle }}<br>
-著者: {{ bookauthor }}<br>
-出版社: {{ publisher }}<br>
-</p>
-<br>
-<a href="/">back to home</a>
+<h3>Bookinfo search</h3>
+
+<form action = "search" method="GET">
+<input type="text" name="isbn">
+<input class="button" type="submit" value="ISBNで検索"> 
+</form>
+
 {% endblock %}
