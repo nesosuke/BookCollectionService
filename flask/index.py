@@ -32,7 +32,7 @@ def result():
         )
     else:    
         session["isbn"]=query
-
+        session["bookinfo"] =result
         record = mongo.db.data.find_one({"isbn": session["isbn"]})
         if record is not None:
             status = record["status"]
@@ -55,23 +55,33 @@ def result():
 def update_status():
     status = request.form["status"]
     memo = request.form["memo"]
+    booktitle= session['bookinfo']["title"]
+    bookauthor = session["bookinfo"]['author']
+    publisher = session["bookinfo"]['publisher']
     record = { "isbn":session["isbn"], "status": status, "memo": memo}
     print(record)
     with open("test.json", encoding="utf-8", mode="a") as f :
         f.write(json.dumps(record) + ",") 
 
 
-    #mongo.db.data.findupdate( {"isbn": session["isbn"]} , record.copy(), True)
     mongo.db.data.find_one_and_update(
-        {"isbn": session["isbn"]}, {"$set": {"status": status, "memo": memo}},
+        {"isbn": session["isbn"]},
+        {"$set": {"status": status, 
+                "memo": memo,
+                "title": booktitle,
+                "author": bookauthor,
+                "publisher": publisher,
+                }
+        },
         upsert=True
     )
     return render_template(
         'status.html',
-        json = record
+        json = record,
+        bookinfo = session["bookinfo"],
         )
 
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
