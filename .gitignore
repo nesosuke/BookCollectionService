@@ -1,3 +1,4 @@
 env/
 *.code-workspace
 */__pycache__/
+*test*
