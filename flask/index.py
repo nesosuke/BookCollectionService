@@ -39,6 +39,7 @@ def result():
             memo = record.get("memo", "")
         else:
             status = "unread"
+            memo = ""
 
         return render_template(
             'success.html',
@@ -60,9 +61,6 @@ def update_status():
     publisher = session["bookinfo"]['publisher']
     record = { "isbn":session["isbn"], "status": status, "memo": memo}
     print(record)
-    with open("test.json", encoding="utf-8", mode="a") as f :
-        f.write(json.dumps(record) + ",") 
-
 
     mongo.db.data.find_one_and_update(
         {"isbn": session["isbn"]},
