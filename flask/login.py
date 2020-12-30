@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 import flask
 from flask import render_template, request, session
-import json
 import flask_login
 from flask_pymongo import PyMongo, ObjectId
-import jinja2
 import getinfo
 
 app = flask.Flask(__name__)
