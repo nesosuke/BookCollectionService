@@ -1,10 +1,13 @@
 {% extends "layout.html" %}
 {% block content %}
+
 <h3>Bookinfo search</h3>
-
-<form action = "search" method="GET">
-<input type="text" name="isbn">
-<input class="button" type="submit" value="ISBNで検索"> 
-</form>
-
+こんにちは．{{ name }} さん．
+<br>
+<p>
+    <form action = "search" method="GET">
+    <input type="text" name="isbn">
+    <input class="button" type="submit" value="ISBNで検索"> 
+    </form>
+</p>
 {% endblock %}
