@@ -152,27 +152,32 @@ def update_status():
     #     upsert=True
     # )
     uid = str(flask_login.current_user.id)
-    if mongo.db.data.find_one({ 'uid': uid, 
-                                'isbn': session["isbn"] } ) is None:
-        mongo.db.data.find_one_and_update(
-            { 'uid': uid, 'isbn': session["isbn"] },
-            {"$setOnInsert": 
+    # if mongo.db.data.find_one({'uid': uid,
+    #                            'isbn': session["isbn"]}) is None:
+    mongo.db.data.find_one_and_update(
+        {'uid': uid, 'isbn': session["isbn"]},
+        {
+        "$setOnInsert":
+            {
                 { 
-                    "title": booktitle,
-                    "author": bookauthor,
-                    "publisher": publisher,
-                    "uid" : uid
+            {
+                "title": booktitle,
+                "author": bookauthor,
+                "publisher": publisher,
+                "uid": uid
+            }
                 }                           
-            },
-            {"$set": 
-                {
-                    "status": status,
-                      "memo": memo,
-                      
-                }
-            },
-            upsert=True
-        )
+            }
+        ,
+        "$set":
+            {
+                "status": status,
+                "memo": memo
+            }
+        
+        },
+        upsert=True
+    )
 
 
     return render_template(
