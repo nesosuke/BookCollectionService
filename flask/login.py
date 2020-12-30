@@ -164,20 +164,19 @@ def update_status():
     mongo.db.data.find_one_and_update(
         {'uid': uid, 'isbn': session["isbn"]},
         {
-        "$setOnInsert":
+            "$setOnInsert":
             {
                 "title": booktitle,
                 "author": bookauthor,
                 "publisher": publisher,
                 "uid": uid
-            }
-        ,
-        "$set":
+            },
+            "$set":
             {
                 "status": status,
                 "memo": memo
             }
-        
+
         },
         upsert=True
     )
