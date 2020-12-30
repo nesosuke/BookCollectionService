@@ -1,10 +1,8 @@
 #!/usr/bin/python3
 import flask
 from flask import render_template, request, session
-import json
 import flask_login
 from flask_pymongo import PyMongo, ObjectId
-import jinja2
 import getinfo
 
 app = flask.Flask(__name__)
@@ -40,22 +38,6 @@ def user_loader(user_id):
     user.id = searched_by_email['_id']
     return user
 
-# あとまわし
-# @login_manager.request_loader
-# def request_loader(request):
-#    email = request.form.get('email')
-#    if email not in users:
-#        return
-
-#    user = User()
-#    user.id = email
-
-#    # DO NOT ever store passwords in plaintext and always compare password
-#    # hashes using constant-time comparison!
-#    user.is_authenticated = request.form['password'] == users[email]['password']
-
-#    return user
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -75,11 +57,6 @@ def login():
 
     return 'Bad login'
 
-
-# @app.route('/protected')
-# @flask_login.login_required
-# def protected():
-#     return 'Logged in as: ' + str(flask_login.current_user.email)
 
 @app.route('/logout')
 @flask_login.login_required
@@ -145,39 +122,24 @@ def update_status():
     bookauthor = session["bookinfo"]['author']
     publisher = session["bookinfo"]['publisher']
     record = {"isbn": session["isbn"], "status": status, "memo": memo}
-    print(record)
 
-    # mongo.db.data.find_one_and_update(
-    #     {"isbn": session["isbn"]},
-    #     {"$set": {"status": status,
-    #             "memo": memo,
-    #             "title": booktitle,
-    #             "author": bookauthor,
-    #             "publisher": publisher,
-    #             }
-    #     },
-    #     upsert=True
-    # )
     uid = str(flask_login.current_user.id)
-    # if mongo.db.data.find_one({'uid': uid,
-    #                            'isbn': session["isbn"]}) is None:
     mongo.db.data.find_one_and_update(
         {'uid': uid, 'isbn': session["isbn"]},
         {
-        "$setOnInsert":
+            "$setOnInsert":
             {
                 "title": booktitle,
                 "author": bookauthor,
                 "publisher": publisher,
                 "uid": uid
-            }
-        ,
-        "$set":
+            },
+            "$set":
             {
                 "status": status,
                 "memo": memo
             }
-        
+
         },
         upsert=True
     )
