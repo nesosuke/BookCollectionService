@@ -2,3 +2,4 @@ env/
 *.code-workspace
 */__pycache__/
 *test*sample.txt
+.vscode/
