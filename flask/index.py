@@ -38,22 +38,6 @@ def user_loader(user_id):
     user.id = searched_by_email['_id']
     return user
 
-# あとまわし
-# @login_manager.request_loader
-# def request_loader(request):
-#    email = request.form.get('email')
-#    if email not in users:
-#        return
-
-#    user = User()
-#    user.id = email
-
-#    # DO NOT ever store passwords in plaintext and always compare password
-#    # hashes using constant-time comparison!
-#    user.is_authenticated = request.form['password'] == users[email]['password']
-
-#    return user
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -73,11 +57,6 @@ def login():
 
     return 'Bad login'
 
-
-# @app.route('/protected')
-# @flask_login.login_required
-# def protected():
-#     return 'Logged in as: ' + str(flask_login.current_user.email)
 
 @app.route('/logout')
 @flask_login.login_required
