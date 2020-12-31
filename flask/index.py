@@ -28,8 +28,6 @@ class User(flask_login.UserMixin):
 @login_manager.user_loader
 def user_loader(user_id):
     searched_by_email = mongo.db.users.find_one({'_id': ObjectId(oid=user_id)})
-    print('user_id', user_id)
-    print('search', searched_by_email)
     if searched_by_email is None:
         return None
 
@@ -122,22 +120,7 @@ def update_status():
     bookauthor = session["bookinfo"]['author']
     publisher = session["bookinfo"]['publisher']
     record = {"isbn": session["isbn"], "status": status, "memo": memo}
-    print(record)
-
-    # mongo.db.data.find_one_and_update(
-    #     {"isbn": session["isbn"]},
-    #     {"$set": {"status": status,
-    #             "memo": memo,
-    #             "title": booktitle,
-    #             "author": bookauthor,
-    #             "publisher": publisher,
-    #             }
-    #     },
-    #     upsert=True
-    # )
     uid = str(flask_login.current_user.id)
-    # if mongo.db.data.find_one({'uid': uid,
-    #                            'isbn': session["isbn"]}) is None:
     mongo.db.data.find_one_and_update(
         {'uid': uid, 'isbn': session["isbn"]},
         {
@@ -162,6 +145,21 @@ def update_status():
         'status.html',
         json=record,
         bookinfo=session["bookinfo"],
+    )
+
+
+# uid のステータスを全表示する
+
+
+@app.route('/mystatus', methods=['GET'])
+def mystatus():
+    uid = str(flask_login.current_user.id)
+    name = mongo.db.users.find_one({'_id': ObjectId(oid=uid)})['email']
+    mystatus = mongo.db.data.find(filter={'uid': uid}) # <pymongo.cursor.Cursor object at 0x7fe7e194fbb0>  って出てくる，なおす
+    return render_template(
+        'mystatus.html',
+        name=name,
+        mystatus=mystatus,
     )
 
 
