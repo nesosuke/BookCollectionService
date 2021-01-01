@@ -155,11 +155,13 @@ def update_status():
 def mystatus():
     uid = str(flask_login.current_user.id)
     name = mongo.db.users.find_one({'_id': ObjectId(oid=uid)})['email']
-    mystatus = mongo.db.data.find(filter={'uid': uid}) # <pymongo.cursor.Cursor object at 0x7fe7e194fbb0>  って出てくる，なおす
+    isReading = list(mongo.db.data.find({'uid': uid, 'status': 'reading'}))
+    hasRead = list(mongo.db.data.find({'uid': uid, 'status': 'read'}))
     return render_template(
         'mystatus.html',
         name=name,
-        mystatus=mystatus,
+        isReading=isReading,
+        hasRead=hasRead
     )
 
 

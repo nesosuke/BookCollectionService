@@ -5,6 +5,19 @@
 こんにちは．{{ name }} さん．
 <br>
 <p>
-    {{ mystatus}}
+    読んでる本<br>
+    {% for i in range(isReading|length) %}
+    {{ isReading[i]['isbn']}}: {{ isReading[i]['title']}}
+    <br>
+    {% endfor %}
+    
+</p>
+<p>
+    読んだ本<br>
+    {% for i in range(hasRead|length) %}
+    {{ hasRead[i]['isbn']}}: {{ hasRead[i]['title']}}
+    <br>
+    
+    {% endfor %}
 </p>
 {% endblock %}
