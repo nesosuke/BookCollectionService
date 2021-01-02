@@ -1,8 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h3>Bookinfo search</h3>
-こんにちは．{{ name }} さん．
+<h3>Reading status</h3>
+
+<p class="text-right"> こんにちは．{{ name }} さん．</p>
 <br>
 <p>
     読んでる本<br>
@@ -10,7 +11,6 @@
     {{ isReading[i]['isbn']}}: {{ isReading[i]['title']}}
     <br>
     {% endfor %}
-    
 </p>
 <p>
     読んだ本<br>
