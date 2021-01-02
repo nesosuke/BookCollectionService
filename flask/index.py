@@ -51,7 +51,7 @@ def login():
         user.id = isValid['_id']
         print('isvalid', isValid['_id'])  # mongoの_id
         flask_login.login_user(user)
-        return flask.redirect(flask.url_for('.index'))
+        return flask.redirect(flask.url_for('index'))
 
     return 'Bad login'
 
@@ -60,7 +60,8 @@ def login():
 @flask_login.login_required
 def logout():
     flask_login.logout_user()
-    return 'Logged out'
+    # return 'Logged out'
+    return flask.redirect(flask.url_for('login'))
 
 
 @login_manager.unauthorized_handler
