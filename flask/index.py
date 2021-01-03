@@ -128,7 +128,7 @@ def searchbygoogle():
         publisher = res['publisher']
     else:
         publisher = "publisher is not found"
-    
+
     if len(res['industryIdentifiers']) == 2:
         isbn = res['industryIdentifiers'][1]['identifier']
     else:

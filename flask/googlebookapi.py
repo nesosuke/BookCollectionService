@@ -4,7 +4,8 @@ import sys
 
 
 def search(query):
-    json = req.get('https://www.googleapis.com/books/v1/volumes?country=JP&q=' + str(query)).json()
+    json = req.get(
+        'https://www.googleapis.com/books/v1/volumes?country=JP&q=' + str(query)).json()
     info = json['items'][0]['volumeInfo']
     return info
 
