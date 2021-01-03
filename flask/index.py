@@ -4,6 +4,7 @@ from flask import render_template, request, session
 import flask_login
 from flask_pymongo import PyMongo, ObjectId
 import getinfo
+import googlebookapi
 
 app = flask.Flask(__name__)
 
@@ -77,17 +78,22 @@ def index():
         title="ISBN search",
     )
 
+# ISBNから書籍情報とる
+# /search?isbn=1234
+# ISBNがわかんない場合は？
+
 
 @app.route('/search', methods=['GET'])
 @flask_login.login_required
 def result():
-    query = request.args.get('isbn')
+    query = request.args.get('q')
     result = getinfo.search(query)
 
     if result is False:
         return render_template(
             'error.html',
-            query=query
+            query=query,
+            title="bookinfo not found"
         )
     else:
         session["isbn"] = query
@@ -110,6 +116,32 @@ def result():
             status=status,
             memo=memo,
         )
+
+
+@app.route('/searchbygoogle', methods=['GET'])
+def searchbygoogle():
+    query = request.args.get('q')
+    res = googlebookapi.search(query)
+    booktitle = res['title']
+    bookauthor = res['authors']
+    if 'publisher' in res:
+        publisher = res['publisher']
+    else:
+        publisher = "publisher is not found"
+    
+    if len(res['industryIdentifiers']) == 2:
+        isbn = res['industryIdentifiers'][1]['identifier']
+    else:
+        isbn = "isbn is not found"
+
+    return render_template(
+        'success.html',
+        title="bookinfo search",
+        booktitle=booktitle,
+        isbn=isbn,
+        bookauthor=bookauthor,
+        publisher=publisher,
+    )
 
 
 @app.route('/status', methods=['POST'])
@@ -144,6 +176,7 @@ def update_status():
 
     return render_template(
         'status.html',
+        title="mystatus",
         json=record,
         bookinfo=session["bookinfo"],
     )
@@ -160,6 +193,7 @@ def mystatus():
     hasRead = list(mongo.db.data.find({'uid': uid, 'status': 'read'}))
     return render_template(
         'mystatus.html',
+        title="mystatus",
         name=name,
         isReading=isReading,
         hasRead=hasRead

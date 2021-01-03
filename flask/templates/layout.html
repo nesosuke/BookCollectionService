@@ -7,6 +7,20 @@
 <title>{{ title }}</title>
 </head>
 <body>
+    <h3>{{ title }}</h3>
+    <p class="text-right"> こんにちは．{{ name }} さん．</p>
+    <p>
+        <form action = "search" method="GET">
+        <input type="text" name="q">
+        <input class="button" type="submit" value="ISBNで検索"> 
+        </form>
+    </p>
+    <p>
+        <form action = "searchbygoogle" method="GET">
+        <input type="text" name="q">
+        <input class="button" type="submit" value="Googleで検索"> 
+        </form>
+    </p>
 {% block content %}
 <!-- ここにメインコンテンツを書く -->
 {% endblock %}
