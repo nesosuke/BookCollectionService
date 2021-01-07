@@ -1,18 +1,35 @@
 #!/usr/bin/python3
-import flask
-from flask import render_template, request, abort
+import requests as req
+from flask import Flask
 from flask_pymongo import PyMongo
-import ndlapi
+import sys
+from bs4 import BeautifulSoup
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
 app.secret_key = 'super secret string'  # Change this!
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bookmeter"
 mongo = PyMongo(app)
 
+req.packages.urllib3.disable_warnings()
+req.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+
+
+def searchNDL(query):
+    if str.isdecimal(query) is True and (len(query) == 10 or len(query) == 13):
+        url = 'https://iss.ndl.go.jp/api/opensearch?' \
+            + 'isbn=' + str(query)
+    else:
+        count = 3
+        url = 'https://iss.ndl.go.jp/api/opensearch?' \
+            + 'cnt=' + str(count) + '&' \
+            + 'title=' + str(query)
+    res = req.get(url, verify=False)
+    res = BeautifulSoup(res.content, 'lxml', from_encoding='uft-8')
+    res = res.channel.find('item')
+
 
 def bookdb_update(query):
-    res = ndlapi.searchNDL(query)
-
+    res = searchNDL(query)
     if res is not None:
         title = res.find('dc:title').text
         author = res.find('dc:creator').text
@@ -46,34 +63,18 @@ def bookdb_update(query):
     return res
 
 
-@app.route('/book', methods=['GET'])
-def bookdb():
-    isbn = request.args.get('q')
+def bookdb(isbn):
     if isbn is None:
-        return 'missing ISBN'
+        data = 'None'
     else:  # 書籍情報があるか(MongoDB -> NDL)
         data = mongo.db.bookdb.find_one({'isbn': isbn})
         if data is None and bookdb_update(isbn) is None:
-            abort(404)  # NDLでも見つからない場合
+            data = 'None'  # NDLでも見つからない場合
         else:
             data = mongo.db.bookdb.find_one({'isbn': isbn})
-        title = data['title']
-        author = data['author']
-        publisher = data['publisher']
-        series = data['series']
-        volume = data['volume']
-        permalink = data['permalink']
-        return render_template(
-            'bookinfo.html',
-            isbn=isbn,
-            title=title,
-            author=author,
-            publisher=publisher,
-            series=series,
-            volume=volume,
-            permalink=permalink,
-        )
+    return data
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    isbn = sys.argv[1]
+    print(bookdb(isbn))
