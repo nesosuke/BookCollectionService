@@ -53,10 +53,10 @@ def bookdb():
         return 'missing ISBN'
     else:  # 書籍情報があるか(MongoDB -> NDL)
         data = mongo.db.bookdb.find_one({'isbn': isbn})
-        if data is None:
-            if bookdb_update(isbn) is None:
-                abort(404)  # NDLでも見つからない場合
-        data = mongo.db.bookdb.find_one({'isbn': isbn})
+        if data is None and bookdb_update(isbn) is None:
+            abort(404)  # NDLでも見つからない場合
+        else:
+            data = mongo.db.bookdb.find_one({'isbn': isbn})
         title = data['title']
         author = data['author']
         publisher = data['publisher']
