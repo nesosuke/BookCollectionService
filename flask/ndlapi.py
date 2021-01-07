@@ -19,7 +19,7 @@ def searchNDL(query):
             + 'title=' + str(query)
 
     res = req.get(url, verify=False)
-    res = BeautifulSoup(res.text, 'lxml')
+    res = BeautifulSoup(res.content, 'lxml', from_encoding='uft-8')
     res = res.channel.find('item')
 
     # if res is not None:
@@ -29,6 +29,7 @@ def searchNDL(query):
     #     isbn = res.find('dc:identifier').text
 
     return res
+
 
 if __name__ == '__main__':
     query = sys.argv[1]
