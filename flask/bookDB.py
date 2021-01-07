@@ -13,9 +13,14 @@ mongo = PyMongo(app)
 req.packages.urllib3.disable_warnings()
 req.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
 
+def isISBN(query):
+    if str.isdecimal(query) is True and (len(query) == 10 or len(query) == 13):
+        return True
+    else:
+        return False
 
 def searchNDL(query):
-    if str.isdecimal(query) is True and (len(query) == 10 or len(query) == 13):
+    if isISBN(query) is True:
         url = 'https://iss.ndl.go.jp/api/opensearch?' \
             + 'isbn=' + str(query)
     else:
@@ -63,15 +68,17 @@ def bookdb_update(query):
     return res
 
 
-def bookdb(isbn):
-    if isbn is None:
+def bookdb(query):
+    if isISBN(query) is not True:
+        return None
+    if query is None:
         data = 'None'
     else:  # 書籍情報があるか(MongoDB -> NDL)
-        data = mongo.db.bookdb.find_one({'isbn': isbn})
+        data = mongo.db.bookdb.find_one({'isbn': query})
         if data is None and bookdb_update(isbn) is None:
             data = 'None'  # NDLでも見つからない場合
         else:
-            data = mongo.db.bookdb.find_one({'isbn': isbn})
+            data = mongo.db.bookdb.find_one({'isbn': query})
     return data
 
 
