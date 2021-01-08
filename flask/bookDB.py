@@ -13,11 +13,13 @@ mongo = PyMongo(app)
 req.packages.urllib3.disable_warnings()
 req.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
 
+
 def isISBN(query):
     if str.isdecimal(query) is True and (len(query) == 10 or len(query) == 13):
         return True
     else:
         return False
+
 
 def searchNDL(query):
     if isISBN(query) is True:
