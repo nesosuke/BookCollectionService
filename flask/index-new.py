@@ -48,16 +48,20 @@ def rootpage():
 
 @app.route('/book')
 def booksearch():
-    data = bookDB.bookdb(request.args.get('q'))
-    return render_template(
-        'bookinfo.html',
-        isbn=data['isbn'],
-        title=data['title'],
-        author=data['title'],
-        publisher=data['publisher'],
-        series=data['series'],
-        permelink=data['permalink'],
-    )
+    q = request.args.get('q')
+    if q is None:
+        return 'none'
+    else:
+        data = bookDB.bookdb(request.args.get('q'))
+        return render_template(
+            'bookinfo.html',
+            isbn=data['isbn'],
+            title=data['title'],
+            author=data['title'],
+            publisher=data['publisher'],
+            series=data['series'],
+            permelink=data['permalink'],
+        )
 
 
 @login_manager.unauthorized_handler
@@ -68,7 +72,6 @@ def unauthorized_handler():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@flask_login.login_required
 def login():
     if flask.request.method == 'GET':
         return render_template('login.html')
@@ -78,7 +81,7 @@ def login():
 
     if find_userdata(email, password) is not None:
         flask_login.login_user(session)
-        return redirect('/home')
+        return 'success'
     else:
         return 'bad user'
 
