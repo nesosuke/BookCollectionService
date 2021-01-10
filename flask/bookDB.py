@@ -21,25 +21,33 @@ def isISBN(query):
         return False
 
 
-def searchNDL(query):
+def searchNDL(query, forceStrSearch=False, count=3):
     query = str(query)
-    if isISBN(query) is True:
-        url = 'https://iss.ndl.go.jp/api/opensearch?' \
-            + 'isbn=' + str(query)
-    else:
-        count = 3
+    if isISBN(query) is False or forceStrSearch is True:
         url = 'https://iss.ndl.go.jp/api/opensearch?' \
             + 'cnt=' + str(count) + '&' \
             + 'title=' + str(query)
-    res = req.get(url, verify=False)
-    res = BeautifulSoup(res.content, 'lxml', from_encoding='uft-8')
-    res = res.channel.find('item')
+        res = req.get(url, verify=False)
+        res = BeautifulSoup(res.content, 'lxml')
+        tmp =[]
+        for i in range(count):
+            tmp.append(res.channel.find('item'))
+        res = tmp
+    elif isISBN(query) is True:
+        url = 'https://iss.ndl.go.jp/api/opensearch?' \
+            + 'isbn=' + str(query)
+        res = req.get(url, verify=False)
+        res = BeautifulSoup(res.content, 'lxml',
+                            from_encoding='uft-8').channel.find('item')
+        
+    else:
+        res = None
     return res
 
 
 def bookdb_update(query):
     res = searchNDL(query)
-    if res is not None:
+    if res is not None or type(res) != list:
         title = res.find('dc:title').text
         author = res.find('dc:creator').text
         publisher = res.find('dc:publisher').text
@@ -87,5 +95,5 @@ def bookdb(query):
 
 
 if __name__ == "__main__":
-    isbn = sys.argv[1]
-    print(bookdb(isbn))
+    q = sys.argv[1]
+    print(searchNDL(q))

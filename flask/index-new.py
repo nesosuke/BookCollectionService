@@ -18,6 +18,8 @@ class User(flask_login.UserMixin):
     id = ""
 
 # ログインセッション管理
+
+
 @login_manager.user_loader
 def user_loader(session_id):
     userdata = mongo.db.users.find_one({'_id': ObjectId(oid=session_id)})
@@ -27,22 +29,20 @@ def user_loader(session_id):
     return user
 
 
-def redirect(dest):
-    flask.redirect(flask.url_for(dest))
-
-
 def find_userdata(email, password):
     userdata = mongo.db.users.find_one({'email': email, 'password': password})
     return userdata
 
 
 @app.route('/')
-def rootpage():
-    return 'top'
+def toppage():
+    return render_template('top.html')
 
 
-@app.route('/book')
-def booksearch():
+
+
+@app.route('/book',endpoint='book')
+def bookinfo():
     isbn = request.args.get('q')
     if isbn is None:
         return 'none'
@@ -61,6 +61,13 @@ def booksearch():
             )
         else:
             return 'data is none'
+
+@app.route('/search')
+def search():
+    q = request.args.get('q')
+    if bookDB.isISBN(q) is True:
+        return flask.redirect(flask.url_for('book',q=q))
+    return bookDB.searchNDL(q)
 
 
 @app.route('/book/update', methods=['GET'])
@@ -103,13 +110,13 @@ def login():
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return render_template('home.html')
+    return render_template('top.html')
 
 
-@app.route('/home')
+@app.route('/mypage')
 @flask_login.login_required
-def home():
-    return render_template('home.html')
+def mypage():
+    return render_template('mypage.html')
 
 
 if __name__ == "__main__":

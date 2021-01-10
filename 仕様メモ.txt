@@ -15,3 +15,6 @@
 /home か　/mystatus
 読んだ数とか出るやつ，サブディレクトリ名未定
 
+/search 
+ISBN以外での検索，→ISBN取得してDB更新
+searchNDLは３件ぶんXMLが帰ってくる→処理考える
