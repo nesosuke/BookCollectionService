@@ -17,12 +17,13 @@ mongo = PyMongo(app)
 class User(flask_login.UserMixin):
     id = ""
 
+
 @login_manager.user_loader
 def user_loader(session_id):
     userdata = mongo.db.users.find_one({'_id': ObjectId(oid=session_id)})
     if userdata is not None:
-        session = User()
-        session.id = userdata['_id']
+        user = User()
+        user.id = userdata['_id']
     return session
 
 
@@ -31,14 +32,8 @@ def redirect(dest):
 
 
 def find_userdata(email, password):
-    userdata = mongo.db.users.find_one_or_404(
-        {'email': email, 'password': password})
-    if userdata == '404':
-        return None
-    else:
-        session = User()
-        session.id = userdata['_id']
-        return session
+    userdata = mongo.db.users.find_one({'email': email, 'password': password})
+    return userdata
 
 
 @app.route('/')
@@ -48,27 +43,43 @@ def rootpage():
 
 @app.route('/book')
 def booksearch():
-    q = request.args.get('q')
-    if q is None:
+    isbn = request.args.get('q')
+    if isbn is None:
         return 'none'
     else:
-        data = bookDB.bookdb(request.args.get('q'))
-        return render_template(
-            'bookinfo.html',
-            isbn=data['isbn'],
-            title=data['title'],
-            author=data['title'],
-            publisher=data['publisher'],
-            series=data['series'],
-            permelink=data['permalink'],
-        )
+        data = bookDB.bookdb(isbn)
+        if data is not None:
+            return render_template(
+                'bookinfo.html',
+                isbn=data['isbn'],
+                title=data['title'],
+                author=data['author'],
+                publisher=data['publisher'],
+                series=data['series'],
+                volume=data['volume'],
+                permalink=data['permalink'],
+            )
+        else:
+            return 'data is none'
+
+
+@app.route('/book/update', methods=['GET'])
+def update():
+    q = request.args.get('q')
+    if q is None:
+        return 'q is none'
+    else:
+        data = bookDB.bookdb_update(q)
+        if data is not None:
+            data = bookDB.bookdb(q)
+            return 'done'
+        else:
+            return 'data is none'
 
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return flask.redirect(flask.url_for('login'))
-
-
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -79,8 +90,11 @@ def login():
     email = flask.request.form['email']
     password = flask.request.form['password']
 
-    if find_userdata(email, password) is not None:
-        flask_login.login_user(session)
+    userdata = find_userdata(email, password)
+    if userdata is not None:
+        user = User()
+        user.id = userdata['_id']
+        flask_login.login_user(user)
         return 'success'
     else:
         return 'bad user'
@@ -89,12 +103,13 @@ def login():
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
-    return redirect('/')
+    return render_template('home.html')
 
 
 @app.route('/home')
 def home():
     return render_template('home.html')
+
 
 if __name__ == "__main__":
     app.run(debug=True)

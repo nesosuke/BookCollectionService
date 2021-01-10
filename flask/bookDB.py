@@ -22,6 +22,7 @@ def isISBN(query):
 
 
 def searchNDL(query):
+    query = str(query)
     if isISBN(query) is True:
         url = 'https://iss.ndl.go.jp/api/opensearch?' \
             + 'isbn=' + str(query)
@@ -33,6 +34,7 @@ def searchNDL(query):
     res = req.get(url, verify=False)
     res = BeautifulSoup(res.content, 'lxml', from_encoding='uft-8')
     res = res.channel.find('item')
+    return res
 
 
 def bookdb_update(query):
@@ -71,14 +73,14 @@ def bookdb_update(query):
 
 
 def bookdb(query):
-    if isISBN(query) is not True:
-        return None
     if query is None:
-        data = 'None'
+        data = 'query is None'
+    elif isISBN(query) is not True:
+        data = None
     else:  # 書籍情報があるか(MongoDB -> NDL)
         data = mongo.db.bookdb.find_one({'isbn': query})
-        if data is None and bookdb_update(isbn) is None:
-            data = 'None'  # NDLでも見つからない場合
+        if data is None and bookdb_update(query) is None:
+            data = 'bookinfo is None'  # NDLでも見つからない場合
         else:
             data = mongo.db.bookdb.find_one({'isbn': query})
     return data
