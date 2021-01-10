@@ -17,14 +17,14 @@ mongo = PyMongo(app)
 class User(flask_login.UserMixin):
     id = ""
 
-
+# ログインセッション管理
 @login_manager.user_loader
 def user_loader(session_id):
     userdata = mongo.db.users.find_one({'_id': ObjectId(oid=session_id)})
     if userdata is not None:
         user = User()
         user.id = userdata['_id']
-    return session
+    return user
 
 
 def redirect(dest):
@@ -38,7 +38,7 @@ def find_userdata(email, password):
 
 @app.route('/')
 def rootpage():
-    return 'home'
+    return 'top'
 
 
 @app.route('/book')
@@ -107,6 +107,7 @@ def logout():
 
 
 @app.route('/home')
+@flask_login.login_required
 def home():
     return render_template('home.html')
 
