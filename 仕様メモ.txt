@@ -1,0 +1,17 @@
+仕様メモ
+
+/book?q=ISBN, GET
+書籍情報を表示
+
+/book/update?q=ISBN, GET 
+書籍情報を更新
+
+/login
+ログイン
+
+/logout 
+ログアウト
+
+/home か　/mystatus
+読んだ数とか出るやつ，サブディレクトリ名未定
+

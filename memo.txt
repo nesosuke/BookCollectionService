@@ -1,0 +1,14 @@
+書籍情報DB
+
+注：岡崎図書館のやつ
+NDLの前段にopenbdとGoogle Books API入れるほうがいい気がする
+
+mongoDBを検索する
+if ある
+    表示
+if ない
+    NDL検索
+    if NDLある
+        表示　（ここまでできた
+else
+    エラー　（まだできてない

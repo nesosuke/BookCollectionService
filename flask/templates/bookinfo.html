@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+{{ isFound }}
+<p>
+    ISBN: {{ isbn }}<br>
+    書名: {{ title }}<br>
+    シリーズ: {{ series }}<br>
+    巻: {{ volume }}<br>
+    著者: {{ author }}<br>
+    出版社: {{ publisher }}<br>
+    NDLリンク: <a href={{ permalink }}>{{ permalink }}</a>
+</p>
+<br>
+{% endblock %}
