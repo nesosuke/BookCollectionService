@@ -64,12 +64,18 @@ def bookinfo():
 @app.route('/search')
 def search():
     q = request.args.get('q')
+    if q is None:
+        return render_template('search.html')
+
     if bookDB.isISBN(q) is True:
         return flask.redirect(flask.url_for('book', q=q))
 
-    res = bookDB.searchNDL(q, stringsearch=True, count=50) # list
-    print(len(res))
-    tmp = []
+    # 毎回NDL叩いてるのお行儀悪すぎワロタ
+
+    # if boookdb に１０件無かったらNDL叩く
+    # bookdbから日本語検索するにはえらい棒が必要
+    res = bookDB.searchNDL(q, stringsearch=True, count=50)  # list
+    result = []
     for i in range(len(res)):
         isbn = res[i].find('dc:identifier')
         if isbn is not None:
@@ -77,8 +83,11 @@ def search():
             if bookDB.isISBN(isbn) is True:
                 # print(isbn)
                 bookDB.bookdb_update(isbn, skipsearch=True)
-                tmp.append(bookDB.bookdb(isbn))
-    return 'a'
+                result.append(bookDB.bookdb(isbn))
+    return render_template(
+        'result.html',
+        result=result,
+    )
 
 
 @app.route('/book/update', methods=['GET'])

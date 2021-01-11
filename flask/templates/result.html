@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block content %}
+<p>
+    {% for i in range(result|length) %}
+
+    ISBN: <a href="book?q={{ result[i]['isbn'] }}">{{ result[i]['isbn'] }}</a><br>
+    書名: {{ result[i]['title'] }}<br>
+    シリーズ: {{ result[i]['series'] }}<br>
+    巻: {{ result[i]['volume'] }}<br>
+    著者: {{ result[i]['author'] }}<br>
+    出版社: {{ result[i]['publisher'] }}<br>
+    NDLリンク: <a href={{ result[i]['permalink'] }}>{{ result[i]['permalink'] }}<br></a>
+    <br>
+    {% endfor %}
+</p>
+<br>
+{% endblock %}

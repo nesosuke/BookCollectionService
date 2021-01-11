@@ -1,14 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
-{{ isFound }}
 <p>
-    ISBN: {{ isbn }}<br>
-    書名: {{ title }}<br>
-    シリーズ: {{ series }}<br>
-    巻: {{ volume }}<br>
-    著者: {{ author }}<br>
-    出版社: {{ publisher }}<br>
-    NDLリンク: <a href={{ permalink }}>{{ permalink }}</a>
+    <form action = "book" method="GET">
+    <input type="text" name="q">
+    <input class="button" type="submit" value="ISBNで検索"> 
+    </form>
+</p>
+<p>
+    <form action = "search" method="GET">
+    <input type="text" name="q">
+    <input class="button" type="submit" value="検索"> 
+    </form>
 </p>
 <br>
 {% endblock %}
