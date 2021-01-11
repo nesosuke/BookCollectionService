@@ -39,9 +39,7 @@ def toppage():
     return render_template('top.html')
 
 
-
-
-@app.route('/book',endpoint='book')
+@app.route('/book', endpoint='book')
 def bookinfo():
     isbn = request.args.get('q')
     if isbn is None:
@@ -62,12 +60,25 @@ def bookinfo():
         else:
             return 'data is none'
 
+
 @app.route('/search')
 def search():
     q = request.args.get('q')
     if bookDB.isISBN(q) is True:
-        return flask.redirect(flask.url_for('book',q=q))
-    return bookDB.searchNDL(q)
+        return flask.redirect(flask.url_for('book', q=q))
+
+    res = bookDB.searchNDL(q, stringsearch=True, count=50) # list
+    print(len(res))
+    tmp = []
+    for i in range(len(res)):
+        isbn = res[i].find('dc:identifier')
+        if isbn is not None:
+            isbn = isbn.text
+            if bookDB.isISBN(isbn) is True:
+                # print(isbn)
+                bookDB.bookdb_update(isbn, skipsearch=True)
+                tmp.append(bookDB.bookdb(isbn))
+    return 'a'
 
 
 @app.route('/book/update', methods=['GET'])

@@ -21,18 +21,18 @@ def isISBN(query):
         return False
 
 
-def searchNDL(query, stringsearch=False, count=5):
+def searchNDL(query, stringsearch=False, count=1):
     query = str(query)
     if isISBN(query) is False or stringsearch is True:
         url = 'https://iss.ndl.go.jp/api/opensearch?' \
             + 'cnt=' + str(count) + '&' \
             + 'title=' + str(query)
         res = req.get(url, verify=False)
-        res = BeautifulSoup(res.content, 'lxml')
-        tmp = []
-        for i in range(count):
-            tmp.append(res.channel.find('item'))
-        res = tmp  # type(res) == list
+        res = BeautifulSoup(res.content, 'lxml').channel.find_all('item')
+        # tmp = []
+        # for i in range(count):
+        #     tmp.append(res.channel.find_all('item'))
+        # res = tmp  # type(res) == list
 
     elif isISBN(query) is True:
         url = 'https://iss.ndl.go.jp/api/opensearch?' \
@@ -53,13 +53,17 @@ def bookdb_update(query, skipsearch=False):
 
     if res is not None or skipsearch is True:
         title = res.find('dc:title').text
-        author = res.find('dc:creator').text
+        author = res.find('dc:creator')
+        if author is not None:
+            author = author.text
+        else:
+            author = None
         publisher = res.find('dc:publisher').text
         isbn = res.find('dc:identifier').text
         if res.find('dcndl:volume') is not None:  # 本により巻数記載の有無が異なる
             volume = res.find('dcndl:volume').text
         else:
-            volume = '1'
+            volume = None
         # want fix ---
         # 'AttributeError: 'NoneType' object has no attribute 'text''
         # series = (res.find('dcndl:seriestitle') or None).text
