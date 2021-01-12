@@ -51,28 +51,17 @@ def bookdb_update(query, skipsearch=False):
     if type(res) == list:
         return None
 
-    if res is not None or skipsearch is True:
-        title = res.find('dc:title').text
-        author = res.find('dc:creator')
-        if author is not None:
-            author = author.text
-        else:
-            author = None
-        publisher = res.find('dc:publisher').text
-        isbn = res.find('dc:identifier').text
-        if res.find('dcndl:volume') is not None:  # 本により巻数記載の有無が異なる
-            volume = res.find('dcndl:volume').text
-        else:
-            volume = None
-        # want fix ---
-        # 'AttributeError: 'NoneType' object has no attribute 'text''
-        # series = (res.find('dcndl:seriestitle') or None).text
-        if res.find('dcndl:seriestitle') is not None:
-            series = res.find('dcndl:seriestitle').text
-        else:
-            series = None
+    if res is not None or skipsearch:
+        def none_check(found_object, defalt_value=""):
+            return defalt_value if found_object is None else found_object.text
+        title = none_check(res.find('dc:title'))
+        author = none_check(res.find('dc:creator'))
+        publisher = none_check(res.find('dc:publisher'))
+        isbn = none_check(res.find('dc:identifier'))
+        volume = none_check(res.find('dcndl:volume'), defalt_value='1')  # 本により巻数記載の有無が異なる
+        series = none_check(res.find('dcndl:seriestitle'))
         # ---
-        permalink = res.find('guid').text
+        permalink = none_check(res.find('guid'))
 
         mongo.db.bookdb.find_one_and_update(
             {'isbn': isbn},
