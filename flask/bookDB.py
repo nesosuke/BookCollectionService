@@ -21,6 +21,10 @@ def isISBN(query):
         return False
 
 
+def isnone_or_bs4(found_object, defalt_value=""):
+    return defalt_value if found_object is None else found_object.text
+
+
 def searchNDL(query, stringsearch=False, count=1):
     query = str(query)
     if isISBN(query) is False or stringsearch is True:
@@ -52,16 +56,15 @@ def bookdb_update(query, skipsearch=False):
         return None
 
     if res is not None or skipsearch:
-        def none_check(found_object, defalt_value=""):
-            return defalt_value if found_object is None else found_object.text
-        title = none_check(res.find('dc:title'))
-        author = none_check(res.find('dc:creator'))
-        publisher = none_check(res.find('dc:publisher'))
-        isbn = none_check(res.find('dc:identifier'))
-        volume = none_check(res.find('dcndl:volume'), defalt_value='1')  # 本により巻数記載の有無が異なる
-        series = none_check(res.find('dcndl:seriestitle'))
+        title = isnone_or_bs4(res.find('dc:title'))
+        author = isnone_or_bs4(res.find('dc:creator'))
+        publisher = isnone_or_bs4(res.find('dc:publisher'))
+        isbn = isnone_or_bs4(res.find('dc:identifier'))
+        volume = isnone_or_bs4(res.find('dcndl:volume'),
+                               defalt_value='1')  # 本により巻数記載の有無が異なる
+        series = isnone_or_bs4(res.find('dcndl:seriestitle'))
         # ---
-        permalink = none_check(res.find('guid'))
+        permalink = isnone_or_bs4(res.find('guid'))
 
         mongo.db.bookdb.find_one_and_update(
             {'isbn': isbn},
