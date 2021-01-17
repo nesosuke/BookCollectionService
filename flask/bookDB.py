@@ -102,4 +102,4 @@ def bookdb(query):
 
 if __name__ == "__main__":
     q = sys.argv[1]
-    print(searchNDL(q)[0].find('dc:title').text)
+    print(searchNDL(q)[0].find('dc:title').text)  # for debug
