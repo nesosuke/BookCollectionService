@@ -3,39 +3,110 @@ import flask
 from flask import render_template, request, session
 import flask_login
 from flask_pymongo import PyMongo, ObjectId
-import getinfo
-import googlebookapi
+import bookDB
 
 app = flask.Flask(__name__)
-
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
 app.secret_key = 'super secret string'  # Change this!
-
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bookmeter"
 mongo = PyMongo(app)
 
-# Our mock database.
-users = {'foo@bar.tld': {'password': 'secret'}}
-
 
 class User(flask_login.UserMixin):
-    email = ""
+    id = ""
 
-# セッション保持するやつ
+# ログインセッション管理
 
 
 @login_manager.user_loader
-def user_loader(user_id):
-    searched_by_email = mongo.db.users.find_one({'_id': ObjectId(oid=user_id)})
-    if searched_by_email is None:
-        return None
-
-    user = User()
-    user.email = searched_by_email['email']
-    user.id = searched_by_email['_id']
+def user_loader(session_id):
+    userdata = mongo.db.users.find_one({'_id': ObjectId(oid=session_id)})
+    if userdata is not None:
+        user = User()
+        user.id = userdata['_id']
     return user
+
+
+def find_userdata(email, password):
+    userdata = mongo.db.users.find_one({'email': email, 'password': password})
+    return userdata
+
+
+@app.route('/')
+def toppage():
+    return render_template('top.html')
+
+
+@app.route('/book', endpoint='book')
+def bookinfo():
+    isbn = request.args.get('q')
+    if isbn is None:
+        return 'none'
+    else:
+        data = bookDB.bookdb(isbn)
+        if data is not None:
+            return render_template(
+                'bookinfo.html',
+                isbn=data['isbn'],
+                title=data['title'],
+                author=data['author'],
+                publisher=data['publisher'],
+                series=data['series'],
+                volume=data['volume'],
+                permalink=data['permalink'],
+            )
+        else:
+            return 'data is none'
+
+
+@app.route('/search')
+def search():
+    q = request.args.get('q')
+    if q is None:
+        return render_template('search.html')
+
+    if bookDB.isISBN(q) is True:
+        return flask.redirect(flask.url_for('book', q=q))
+
+    # 毎回NDL叩いてるのお行儀悪すぎワロタ
+
+    # if boookdb に１０件無かったらNDL叩く
+    # bookdbから日本語検索するにはえらい棒が必要
+    res = bookDB.searchNDL(q, stringsearch=True, count=50)  # list
+    result = []
+    for i in range(len(res)):
+        isbn = res[i].find('dc:identifier')
+        if isbn is not None:
+            isbn = isbn.text
+            if bookDB.isISBN(isbn) is True:
+                # print(isbn)
+                bookDB.bookdb_update(isbn, skipsearch=True)
+                result.append(bookDB.bookdb(isbn))
+    return render_template(
+        'result.html',
+        result=result,
+    )
+
+
+@app.route('/book/update', methods=['GET'])
+def update():
+    q = request.args.get('q')
+    if q is None:
+        return 'q is none'
+    else:
+        data = bookDB.bookdb_update(q)
+        if data is not None:
+            data = bookDB.bookdb(q)
+            return 'done'
+        else:
+            return 'data is none'
+
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return flask.redirect(flask.url_for('login'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -45,159 +116,27 @@ def login():
 
     email = flask.request.form['email']
     password = flask.request.form['password']
-    isValid = mongo.db.users.find_one({'email': email, 'password': password})
-    # if flask.request.form['password'] == users[email]['password']:
-    if isValid is not None:
-        user = User()
-        user.id = isValid['_id']
-        print('isvalid', isValid['_id'])  # mongoの_id
-        flask_login.login_user(user)
-        return flask.redirect(flask.url_for('index'))
 
-    return 'Bad login'
+    userdata = find_userdata(email, password)
+    if userdata is not None:
+        user = User()
+        user.id = userdata['_id']
+        flask_login.login_user(user)
+        return 'success'
+    else:
+        return 'bad user'
 
 
 @app.route('/logout')
-@flask_login.login_required
 def logout():
     flask_login.logout_user()
-    # return 'Logged out'
-    return flask.redirect(flask.url_for('login'))
+    return render_template('top.html')
 
 
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return flask.redirect(flask.url_for('login'))
-
-
-@app.route('/')
+@app.route('/mypage')
 @flask_login.login_required
-def index():
-    return render_template(
-        'search.html',
-        title="ISBN search",
-    )
-
-# ISBNから書籍情報とる
-# /search?isbn=1234
-# ISBNがわかんない場合は？
-
-
-@app.route('/search', methods=['GET'])
-@flask_login.login_required
-def result():
-    query = request.args.get('q')
-    result = getinfo.search(query)
-
-    if result is False:
-        return render_template(
-            'error.html',
-            query=query,
-            title="bookinfo not found"
-        )
-    else:
-        session["isbn"] = query
-        session["bookinfo"] = result
-        record = mongo.db.data.find_one({"isbn": session["isbn"]})
-        if record is not None:
-            status = record["status"]
-            memo = record.get("memo", "")
-        else:
-            status = "unread"
-            memo = ""
-
-        return render_template(
-            'success.html',
-            title="search result",
-            isbn=query,
-            booktitle=result['title'],
-            bookauthor=result['author'],
-            publisher=result['publisher'],
-            status=status,
-            memo=memo,
-        )
-
-
-@app.route('/searchbygoogle', methods=['GET'])
-def searchbygoogle():
-    query = request.args.get('q')
-    res = googlebookapi.search(query)
-    booktitle = res['title']
-    bookauthor = res['authors']
-    if 'publisher' in res:
-        publisher = res['publisher']
-    else:
-        publisher = "publisher is not found"
-
-    if len(res['industryIdentifiers']) == 2:
-        isbn = res['industryIdentifiers'][1]['identifier']
-    else:
-        isbn = "isbn is not found"
-
-    return render_template(
-        'success.html',
-        title="bookinfo search",
-        booktitle=booktitle,
-        isbn=isbn,
-        bookauthor=bookauthor,
-        publisher=publisher,
-    )
-
-
-@app.route('/status', methods=['POST'])
-@flask_login.login_required
-def update_status():
-    status = request.form["status"]
-    memo = request.form["memo"]
-    booktitle = session['bookinfo']["title"]
-    bookauthor = session["bookinfo"]['author']
-    publisher = session["bookinfo"]['publisher']
-    record = {"isbn": session["isbn"], "status": status, "memo": memo}
-    uid = str(flask_login.current_user.id)
-    mongo.db.data.find_one_and_update(
-        {'uid': uid, 'isbn': session["isbn"]},
-        {
-            "$setOnInsert":
-            {
-                "title": booktitle,
-                "author": bookauthor,
-                "publisher": publisher,
-                "uid": uid
-            },
-            "$set":
-            {
-                "status": status,
-                "memo": memo
-            }
-
-        },
-        upsert=True
-    )
-
-    return render_template(
-        'status.html',
-        title="mystatus",
-        json=record,
-        bookinfo=session["bookinfo"],
-    )
-
-
-# uid のステータスを全表示する
-
-
-@app.route('/mystatus', methods=['GET'])
-def mystatus():
-    uid = str(flask_login.current_user.id)
-    name = mongo.db.users.find_one({'_id': ObjectId(oid=uid)})['email']
-    isReading = list(mongo.db.data.find({'uid': uid, 'status': 'reading'}))
-    hasRead = list(mongo.db.data.find({'uid': uid, 'status': 'read'}))
-    return render_template(
-        'mystatus.html',
-        title="mystatus",
-        name=name,
-        isReading=isReading,
-        hasRead=hasRead
-    )
+def mypage():
+    return render_template('mypage.html')
 
 
 if __name__ == "__main__":
