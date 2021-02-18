@@ -3,7 +3,7 @@ import flask
 from flask import render_template, request, session
 import flask_login
 from flask_pymongo import PyMongo, ObjectId
-import bookDB
+import functions
 
 app = flask.Flask(__name__)
 login_manager = flask_login.LoginManager()
@@ -62,10 +62,39 @@ def logout():
     return render_template('top.html')
 
 
+@app.route('/')
+def toppage():
+    return render_template('top.html')
+
+
 @app.route('/mypage')
 @flask_login.login_required
-def return_mypage():
+def mypage():
     return render_template('mypage.html')
+
+
+@app.route('/search', methods=['GET'])  # 検索ページ
+def searchandresult_page():
+    query = request.args.get('q')
+    if query is None:
+        return render_template('search.html')
+
+    if functions.isISBN(query) is True:
+        res = functions.get_bookinfo_fromDB(query)
+        if res is not None:
+            return render_template('result.html',
+                                   result=res, #dict
+                                   isFoundbyISBN=True)
+        else:
+            return render_template('result.html', 
+            result=res, # Nonetype
+            )
+
+    else:
+        res = functions.search_fromNDL_byTitle(query)
+        return render_template('result.html',
+                               result=res, # list 
+                               isFoundbyISBN=False)
 
 
 if __name__ == "__main__":
