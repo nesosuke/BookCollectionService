@@ -84,19 +84,18 @@ def bookdb_update(query, skipsearch=False):
     return res
 
 
-def bookdb(query):
-    if query is None:
+def bookdb(isbn):
+    if isbn is None:
         # data = 'query is None'
         data = None
-    elif isISBN(query) is not True:
+    elif isISBN(isbn) is not True:
         data = None
     else:  # 書籍情報があるか(MongoDB -> NDL)
-        data = mongo.db.bookdb.find_one({'isbn': query})
-        if data is None and bookdb_update(query) is None:
+        data = mongo.db.bookdb.find_one({'isbn': isbn})
+        if data is None and bookdb_update(isbn) is None:
             data = None  # NDLでも見つからない場合
-            # data = 'data is None'
         else:
-            data = mongo.db.bookdb.find_one({'isbn': query})
+            data = mongo.db.bookdb.find_one({'isbn': isbn})
     return data
 
 

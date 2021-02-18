@@ -9,6 +9,14 @@
     著者: {{ author }}<br>
     出版社: {{ publisher }}<br>
     NDLリンク: <a href={{ permalink }}>{{ permalink }}</a>
+<p> 
+    読了状態: {{ status }}<br>
+    <form action='status' method="POST">
+    <input class="button" type="submit" value="読了">
+        
+    </form>
+</p>
+
 </p>
 <br>
 {% endblock %}

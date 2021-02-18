@@ -39,41 +39,18 @@ def toppage():
     return render_template('top.html')
 
 
-@app.route('/book', endpoint='book')
-def bookinfo():
-    isbn = request.args.get('q')
-    if isbn is None:
-        return 'none'
-    else:
-        data = bookDB.bookdb(isbn)
-        if data is not None:
-            return render_template(
-                'bookinfo.html',
-                isbn=data['isbn'],
-                title=data['title'],
-                author=data['author'],
-                publisher=data['publisher'],
-                series=data['series'],
-                volume=data['volume'],
-                permalink=data['permalink'],
-            )
-        else:
-            return 'data is none'
-
-
 @app.route('/search')
-def search():
+def search(): #書籍情報検索画面
     q = request.args.get('q')
     if q is None:
         return render_template('search.html')
 
     if bookDB.isISBN(q) is True:
         return flask.redirect(flask.url_for('book', q=q))
+    else:
+        pass
 
-    # 毎回NDL叩いてるのお行儀悪すぎワロタ
-
-    # if boookdb に１０件無かったらNDL叩く
-    # bookdbから日本語検索するにはえらい棒が必要
+    # NDLで書名から検索する  ## 毎回NDL叩いてるのお行儀悪すぎワロタ
     res = bookDB.searchNDL(q, stringsearch=True, count=50)  # list
     result = []
     for i in range(len(res)):
@@ -88,6 +65,28 @@ def search():
         'result.html',
         result=result,
     )
+
+
+@app.route('/book', endpoint='book')
+def bookinfo(): #書籍情報を検索して表示する関数
+    isbn = request.args.get('q')
+    if isbn is None:
+        return 'none'
+    else:
+        info = bookDB.bookdb(isbn)
+        if info is not None:
+            return render_template(
+                'bookinfo.html',
+                isbn=info['isbn'],
+                title=info['title'],
+                author=info['author'],
+                publisher=info['publisher'],
+                series=info['series'],
+                volume=info['volume'],
+                permalink=info['permalink'],
+            )
+        else:
+            return 'bookinfo not found'
 
 
 @app.route('/book/update', methods=['GET'])
@@ -122,7 +121,8 @@ def login():
         user = User()
         user.id = userdata['_id']
         flask_login.login_user(user)
-        return 'success'
+        # return 'success'
+        return flask.redirect(flask.url_for('mypage'))
     else:
         return 'bad user'
 

@@ -41,7 +41,7 @@ def get_bookinfo_fromDB(isbn):
     if isbn is None or isISBN(isbn) is False:
         return None
 
-    bookinfo = mongo.db.bookdb.find_one({'isbn': isbn})
+    bookinfo = mongo.db.bookinfo.find_one({'isbn': isbn})
     return bookinfo
 
 # NDLから探す -> dict
@@ -85,7 +85,7 @@ def update_bookinfoDB(isbn):
     series = isnone_or_bs4(res.find('dcndl:seriestitle'))
     permalink = isnone_or_bs4(res.find('guid'))
 
-    mongo.db.bookdb.find_one_and_update(
+    mongo.db.bookinfo.find_one_and_update(
         {'isbn': isbn},
         {
             "$set":
@@ -104,14 +104,14 @@ def update_bookinfoDB(isbn):
     return True
 
 # 読了状態DBの読み書きする関数
-## ステータスを書き込む( unread / read / reading / wish )
+## ステータスを更新( unread / read / reading / wish )
 
 
 def update_status(uid, isbn, status='unread'):
-    if status != 'unread' or 'read' or 'reading' or wish:
+    if status != 'unread' or 'read' or 'reading' or 'wish':
         return None
 
-    mongo.db.statusdb.find_one_and_update(
+    mongo.db.statuses.find_one_and_update(
         {'uid': uid, 'isbn': isbn},
         {
             "$set":
@@ -128,7 +128,7 @@ def update_status(uid, isbn, status='unread'):
 
 
 def get_status_fromDB(uid, isbn):
-    res = mongo.db.statusdb.find_one({'isbn': isbn, 'uid': uid})  # uidは仮
+    res = mongo.db.statuses.find_one({'isbn': isbn, 'uid': uid})  # uidは仮
     if res is not None:
         res = res['status']
     return res
