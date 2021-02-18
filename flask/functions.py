@@ -17,37 +17,28 @@ mongo = PyMongo(app)
 
 # memo: Noneを返すようにすること
 
-# ISBN10/13かどうか判定する関数
 
-
-def isISBN(query):
+def isISBN(query):  # ISBN10/13かどうか判定する
     query_length = len(str(query))
     if str.isdecimal(query) is True and query_length == 10 or query_length == 13:
         return True
     else:
         return False
 
-# None/bs4の判定
 
-
-def isnone_or_bs4(found_object, defalt_value=""):
+def isnone_or_bs4(found_object, defalt_value=""):  # None/bs4の判定
     return defalt_value if found_object is None else found_object.text
 
-# 書籍情報を引っ張ってくる関数
-# DBから探す
 
-
-def get_bookinfo_fromDB(isbn):
+def get_bookinfo_fromDB(isbn):  # 自前DBから書籍情報を検索
     if isbn is None or isISBN(isbn) is False:
         return None
 
     bookinfo = mongo.db.bookinfo.find_one({'isbn': isbn})
     return bookinfo
 
-# NDLから探す -> dict
 
-
-def search_fromNDL_byISBN(isbn):
+def search_fromNDL_byISBN(isbn):  # NDLから探す -> dict
     if isISBN(isbn) is False:
         return None
 
@@ -56,10 +47,8 @@ def search_fromNDL_byISBN(isbn):
                         from_encoding='uft-8').channel.find('item')  # dict
     return res
 
-# NDLからタイトルで検索() -> list
 
-
-def search_fromNDL_byTitle(query, stringsearch=False, count=1):
+def search_fromNDL_byTitle(query, stringsearch=False, count=1):  # NDLからタイトルで検索() -> list
     query = str(query)
     if isISBN(query) is False or stringsearch is True:
         url = 'https://iss.ndl.go.jp/api/opensearch?' \
@@ -69,10 +58,8 @@ def search_fromNDL_byTitle(query, stringsearch=False, count=1):
         res = BeautifulSoup(
             res.content, 'lxml').channel.find_all('item')  # list
 
-# 書籍情報DBを更新する
 
-
-def update_bookinfoDB(isbn):
+def update_bookinfoDB(isbn):  # 書籍情報DBを更新する
     bookinfo = search_fromNDL_byISBN(isbn)
     if bookinfo is None:
         return None
@@ -103,12 +90,9 @@ def update_bookinfoDB(isbn):
 
     return True
 
-# 読了状態DBの読み書きする関数
-## ステータスを更新( unread / read / reading / wish )
 
-
-def update_status(uid, isbn, status='unread'):
-    if status != 'unread' or 'read' or 'reading' or 'wish':
+def update_status(uid, isbn, status='unread'):  # ステータスを更新(unread/read/reading/wish)
+   if status != 'unread' or 'read' or 'reading' or 'wish':
         return None
 
     mongo.db.statuses.find_one_and_update(
@@ -124,10 +108,8 @@ def update_status(uid, isbn, status='unread'):
         upsert=True
     )
 
-# 読了状態を探す
 
-
-def get_status_fromDB(uid, isbn):
+def get_status_fromDB(uid, isbn):  # 読了状態を探す
     res = mongo.db.statuses.find_one({'isbn': isbn, 'uid': uid})  # uidは仮
     if res is not None:
         res = res['status']
