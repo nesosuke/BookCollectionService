@@ -73,6 +73,37 @@ def mypage():
     return render_template('mypage.html')
 
 
+@app.route('/book', methods=['GET'])
+@flask_login.login_required
+def show_bookinfo():
+    query = request.args.get('q')
+
+    if functions.isISBN(query) is False:
+        return None
+
+    res = functions.get_bookinfo_fromDB(query)
+    session['isbn'] = query
+
+    if res is None:
+        res = functions.get_bookinfo_fromDB(query)
+
+    return render_template('result.html',
+                           result=res,  # dict
+                           isFoundbyISBN=True)
+
+
+@app.route('/record', methods=['POST'], endpoint='record')
+@flask_login.login_required
+def update_status():
+    uid = str(flask_login.current_user.id)
+    query = session['isbn']
+    status = request.args.get('status')
+    if functions.isISBN(query) is False:
+        return None
+    res = functions.update_status(uid, query, status)
+
+    return 'done'
+
 @app.route('/search', methods=['GET'])  # 検索ページ
 def searchandresult_page():
     query = request.args.get('q')
@@ -82,19 +113,30 @@ def searchandresult_page():
     if functions.isISBN(query) is True:
         res = functions.get_bookinfo_fromDB(query)
         if res is not None:
-            return render_template('result.html',
-                                   result=res, #dict
-                                   isFoundbyISBN=True)
+            return flask.redirect(flask.url_for('/book?q='+query))
+
         else:
-            return render_template('result.html', 
-            result=res, # Nonetype
-            )
+            return render_template('result.html',
+                                   result=res,  # Nonetype
+                                   )
 
     else:
         res = functions.search_fromNDL_byTitle(query)
         return render_template('result.html',
-                               result=res, # list 
+                               result=res,
+                                 # list
                                isFoundbyISBN=False)
+
+@app.route('/read')
+@flask_login.login_required
+def show_read():
+    uid = str(flask_login.current_user.id)
+    res =  list(mongo.db.data.find({'uid': uid, 'status': 'read'}))
+    return render_template(
+        'status.html',
+        title="mystatus",
+        result=res,
+    )
 
 
 if __name__ == "__main__":

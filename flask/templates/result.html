@@ -1,9 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
     <p>
-        {% if res == None %}
-        bookinfo not found.
-        {% else %}    
+        {% if res is not none %} <!-- ISBN検索したとき用-->
             {% if isFoundbyISBN == True %}
                 ISBN: <a href="book?q={{ result['isbn'] }}">{{ result['isbn'] }}</a><br>
                 書名: {{ result['title'] }}<br>
@@ -12,8 +10,19 @@
                 著者: {{ result['author'] }}<br>
                 出版社: {{ result['publisher'] }}<br>
                 NDLリンク: <a href={{ result['permalink'] }}>{{ result['permalink'] }}<br></a>
+
+                <form action='record' method="POST">
+                    <p>
+                        <input type="radio" name='status' value="read" checked='checked'>unread<br>
+                        <input type="radio" name='status' value="read">reading<br>
+                        <input type="radio" name='status' value="read">read<br>
+                        <input type="radio" name='status' value="read">wish<br>
+                        <input type="submit" value="submit">
+                    </p>
+                </form>
+            
                 <br>
-            {% else %}
+            {% else %} <!-- タイトル検索したとき用-->
                 {% for i in range(result|length) %}
                     ISBN: <a href="book?q={{ result[i]['dc:identifier'] }}">{{ result[i]['dc:identifier'] }}</a><br>
                     書名: {{ result[i]['title'] }}<br>
@@ -24,7 +33,10 @@
                     NDLリンク: <a href={{ result[i]['permalink'] }}>{{ result[i]['permalink'] }}<br></a>
                     <br>
                 {% endfor %}
-            {% endif %}
+                {% endif %}
+        {% else %}    
+            bookinfo  found
+    
         {% endif %}
         </p>
 <br>

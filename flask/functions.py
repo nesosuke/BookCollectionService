@@ -38,6 +38,7 @@ def update_bookinfoDB(isbn):  # 書籍情報DBを更新する
         return False
 
     url = 'https://iss.ndl.go.jp/api/opensearch?' + 'isbn=' + str(isbn)
+    res=req.get(url,verify=False)
     res = BeautifulSoup(res.content, 'lxml',
                         from_encoding='uft-8').channel.find('item')  # dict
 
@@ -54,7 +55,7 @@ def update_bookinfoDB(isbn):  # 書籍情報DBを更新する
         series = isnone_or_bs4(res.find('dcndl:seriestitle'))
         permalink = isnone_or_bs4(res.find('guid'))
 
-        mongo.db.bookinfo.find_one_and_update(
+        mongo.db.bookdb.find_one_and_update(
             {'isbn': isbn},
             {
                 "$set":
@@ -77,7 +78,7 @@ def get_bookinfo_fromDB(isbn):  # 自前DBから書籍情報を検索
     if isbn is None or isISBN(isbn) is False:
         return None
 
-    res = mongo.db.bookinfo.find_one({'isbn': isbn})
+    res = mongo.db.bookdb.find_one({'isbn': isbn})
     if res is None:  # DBにない場合，NDLから検索してくる
         just_update = update_bookinfoDB(isbn)
         res = mongo.db.bookinfo.find_one({'isbn': isbn})
