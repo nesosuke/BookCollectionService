@@ -11,6 +11,7 @@ DB: mongoDB
     - ISBNから検索
     - タイトルから検索
         - 検索結果からISBNを取得して自前DBに格納する
+        - 検索結果を再利用できるように該当以外も格納しておく
 - 文献情報とは別のDBに読了情報を格納
     - 'statusdb'
     - ステータスはread/reading/unread/wish
@@ -40,7 +41,8 @@ DB: mongoDB
 # 構造
 bookmeter/
 |- app
-|  |- app.py (index.py)
+|  |- app.py
+|  |- modules.py
 |  |- templates/
 |  -- static/
 
