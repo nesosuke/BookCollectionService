@@ -11,13 +11,26 @@ mongo = PyMongo(app)
 
 
 @app.route('/book')
-isbn = request.args.get('q')
-bookinfo = modules.get_bookinfo_byISBN(isbn)
-return render_template('result.html',
-                       result=bookinfo)
+def show_bookinfo():
+    isbn = request.args.get('q')
+    bookinfo = modules.find_bookinfo_byisbn(isbn)  # dict
+    return render_template('bookinfo.html',
+                       bookinfo = bookinfo)
 
-# @app.route('search') # DBからElasticSearch叩くやつできてからにする
-# query = request.args.get('q')
-# bookinfo= modules.update_bookdb_bytitle(query)
-# return render_template('result.html',
-# result=bookinfo)
+
+@ app.route('/search', methods = ['GET'])
+def find_and_show_bookinfo():
+    query=request.args.get('q')
+    if query is None:
+        return render_template('search.html')
+    elif modules.isISBN13(query):
+        bookinfo=[modules.find_bookinfo_byisbn(query)]  # list
+    else:
+        bookinfo=modules.find_bookinfo_bytitle(query)  # list
+
+    return render_template('result.html',
+                           bookinfo = bookinfo)
+
+
+if __name__ == "__main__":
+    app.run(debug = True)

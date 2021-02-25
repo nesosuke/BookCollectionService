@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block content %}
+<p>
+    <!-- {% if (bookinfo|length) == '0' %}
+    not found
+    {% else %} -->
+        {% for i in range(bookinfo|length) %}
+            ISBN: <a href="book?q={{ bookinfo[i]['isbn'] }}">{{ bookinfo[i]['isbn'] }}</a><br>
+            書名: {{ bookinfo[i]['title'] }}<br>
+            シリーズ: {{ bookinfo[i]['series'] }}<br>
+            巻: {{ bookinfo[i]['volume'] }}<br>
+            著者: {{ bookinfo[i]['author'] }}<br>
+            出版社: {{ bookinfo[i]['publisher'] }}<br>
+            NDLリンク: <a href={{ bookinfo[i]['permalink'] }}>{{ bookinfo[i]['permalink'] }}<br></a>
+            <br>
+        {% endfor %}
+    <!-- {% endif %} -->
+</p>
+<br>
+{% endblock %}

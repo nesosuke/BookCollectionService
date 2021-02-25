@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+<p>
+    ISBN: <a href="book?q={{ bookinfo['isbn'] }}">{{ bookinfo['isbn'] }}</a><br>
+    書名: {{ bookinfo['title'] }}<br>
+    シリーズ: {{ bookinfo['series'] }}<br>
+    巻: {{ bookinfo['volume'] }}<br>
+    著者: {{ bookinfo['author'] }}<br>
+    出版社: {{ bookinfo['publisher'] }}<br>
+    NDLリンク: <a href={{ bookinfo['permalink'] }}>{{ bookinfo['permalink'] }}<br></a>
+    <br>
+</p>
+<br>
+{% endblock %}

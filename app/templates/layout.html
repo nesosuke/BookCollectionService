@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<title>{{ pagetitle }}</title>
+</head>
+<body>
+    <h3>{{ pagetitle }}</h3>
+    <!-- <p>
+        <form action = "book" method="GET">
+        <input type="text" name="q">
+        <input class="button" type="submit" value="ISBNで検索"> 
+        </form>
+    </p> -->
+    <p>
+        <form action = "search" method="GET">
+        <input type="text" name="q">
+        <input class="button" type="submit" value="検索"> 
+        </form>
+    </p>
+{% block content %}
+<!-- ここにメインコンテンツを書く -->
+{% endblock %}
+<p>
+    <a href="/">back to home</a>
+    <br>
+    <a href="/mystatus">mystatus</a>
+    <br>
+    <a href="/logout">logout</a>
+</p>
+</body>
+</html>
