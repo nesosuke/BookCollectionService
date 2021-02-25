@@ -10,5 +10,15 @@
     NDLリンク: <a href={{ bookinfo['permalink'] }}>{{ bookinfo['permalink'] }}<br></a>
     <br>
 </p>
+<p>
+<form action='status' method="POST">
+    <input type="hidden" name='isbn' value={{ bookinfo['isbn'] }}></data>
+    <input type="radio" name='status' value="unread" checked='checked'>unread<br>
+    <input type="radio" name='status' value="reading">reading<br>
+    <input type="radio" name='status' value="read">read<br>
+    <input type="radio" name='status' value="wish">wish<br>
+    <input type="submit" value="submit">
+</form>
+</p>
 <br>
 {% endblock %}
