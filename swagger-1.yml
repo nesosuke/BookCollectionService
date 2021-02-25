@@ -1,0 +1,47 @@
+swagger: "2.0"
+info:
+  title: bookmeter
+  description: bookmeterのパクリ
+  version: "1.0"
+host: localhost:5000
+basePath: /api/v1
+schemes:
+  - http
+  - https
+paths:
+  /book:
+    get:
+      summary: '書籍情報を探す'
+      parameters:
+        - in: "ISBN"
+          name: "q"
+          required: true
+      consumes:
+        - "text/plain"
+
+      produces:
+        - "application/json"
+      responses:
+        "404":
+          description: "Not Found"
+  /status:
+    post:
+      summary: '読了状態を記録する'
+      consumes:
+        - "text/plain"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "ISBN"
+          name: "isbn"
+          required: true
+        - in: "status"
+          name: "status"
+          required: true
+        - name: "token"
+          in: "usertoken"
+          required: true
+      responses:
+        "401":
+          description: "Invalid token"
+
