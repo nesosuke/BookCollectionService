@@ -103,8 +103,18 @@ def find_bookinfo_bytitle(title):  # list
     return bookinfolist_fromNDL
 
 
-def 読了状態を格納する(uid, isbn, ステータス):
-    pass
+def update_status_intoDB(uid, isbn, status):
+    tmp = mongo.db.statusdb.find_one_and_update(
+        {'uid': uid, 'isbn': isbn},
+        {
+            "$set":
+                {
+                    'status': status,
+                },
+        },
+        upsert=True
+    )
+    return tmp
 
 
 def 読了状態を持ってくる(uid, isbn):
