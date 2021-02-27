@@ -49,5 +49,5 @@ bookmeter/
 # 見た目について
 HTML/CSSわからん．
 
-# その他
+# API
 Swaggerが良いらしい．

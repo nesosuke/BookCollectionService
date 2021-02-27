@@ -66,7 +66,7 @@ def find_bookinfo_bytitle(title):  # list
     # ｢bookDBで探して，無ければNDLを叩き直す｣挙動にしたい．
 
     url = 'https://iss.ndl.go.jp/api/opensearch?' \
-        + 'cnt=' + str(10) + '&' \
+        + 'cnt=' + str(20) + '&' \
         + 'title=' + str(title)
     res = req.get(url, verify=False)
     reslist = BeautifulSoup(
@@ -103,7 +103,7 @@ def find_bookinfo_bytitle(title):  # list
     return bookinfolist_fromNDL
 
 
-def update_status_intoDB(uid, isbn, status):
+def update_reading_status(uid, isbn, status):
     tmp = mongo.db.statusdb.find_one_and_update(
         {'uid': uid, 'isbn': isbn},
         {
@@ -117,9 +117,11 @@ def update_status_intoDB(uid, isbn, status):
     return tmp
 
 
-def 読了状態を持ってくる(uid, isbn):
-    pass
-
+def get_reading_status(uid, isbn): #get_status
+    status_data=mongo.db.statusdb.find_one(
+        {'uid':uid, 'isbn':isbn}
+    )
+    return status_data['status']
 
 def 読んだ一覧を持ってくる(uid):
     pass

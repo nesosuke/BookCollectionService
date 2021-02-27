@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-<p>
+<!-- <p>
     ISBN: <a href="book?q={{ bookinfo['isbn'] }}">{{ bookinfo['isbn'] }}</a><br>
     書名: {{ bookinfo['title'] }}<br>
     シリーズ: {{ bookinfo['series'] }}<br>
@@ -9,7 +9,17 @@
     出版社: {{ bookinfo['publisher'] }}<br>
     NDLリンク: <a href={{ bookinfo['permalink'] }}>{{ bookinfo['permalink'] }}<br></a>
     <br>
-</p>
+</p> -->
+
+<script>
+const bookinfo = {{ bookinfo }};
+document.write();   
+</script>
+
+
+
+
+
 <p>
 <form action='status' method="POST">
     <input type="hidden" name='isbn' value={{ bookinfo['isbn'] }}></data>

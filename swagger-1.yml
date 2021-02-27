@@ -16,9 +16,8 @@ paths:
         - in: "ISBN"
           name: "q"
           required: true
-      consumes:
+      consumes: 
         - "text/plain"
-
       produces:
         - "application/json"
       responses:
