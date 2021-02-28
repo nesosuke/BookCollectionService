@@ -121,7 +121,7 @@ def get_reading_status(uid, isbn): #get_status
     status_data=mongo.db.statusdb.find_one(
         {'uid':uid, 'isbn':isbn}
     )
-    return status_data['status']
+    return status_data
 
 def 読んだ一覧を持ってくる(uid):
     pass
