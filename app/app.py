@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from flask import Flask, render_template, request, session, jsonify,abort
+from flask import Flask, render_template, request, session, jsonify, abort
 import json
 from flask_pymongo import PyMongo
 import modules
@@ -11,11 +11,6 @@ app.config['JSON_AS_ASCII'] = False
 mongo = PyMongo(app)
 
 
-@app.route('/')
-def toppage():
-    return render_template('index.html')
-
-
 @app.route('/book', methods=['GET'])
 def show_bookinfo():
     if request.method == 'GET':
@@ -25,6 +20,19 @@ def show_bookinfo():
         del bookinfo['_id']  # json
         bookinfo = jsonify(bookinfo)
         return bookinfo
+
+
+@app.route('/search', methods=['GET'])
+def find_and_show_bookinfo():
+    query = request.args.get('q')
+    if query is None:
+        return abort(404)
+    else:
+        bookinfo = modules.find_bookinfo_bytitle(query)  # list
+        if len(bookinfo) == 0:
+            return abort(404)
+        else:
+            return jsonify(bookinfo)
 
 
 @app.route('/status', methods=['GET'])
