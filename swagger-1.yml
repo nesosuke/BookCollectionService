@@ -25,6 +25,23 @@ paths:
           description: "ok"
         "404":
           description: "Not Found"
+  /update/{ISBN}:
+    get:
+      summary: "書籍情報の更新"
+      parameters:
+        - in: path
+          name: "ISBN"
+          required: true
+      consumes:
+        - "text/plain"
+      produces:
+        - "application/json"  
+      responses:
+        "200":
+          description: "ok"
+        "404":
+          description: "Not Found"
+
   /status:
     post:
       summary: "読了状態を記録する"
@@ -45,3 +62,5 @@ paths:
       responses:
         "401":
           description: "Invalid token"
+
+      deprecated: false
