@@ -10,14 +10,15 @@ app.config["MONGO_URI"] = "mongodb://localhost:27017/bookmeter"
 app.config['JSON_AS_ASCII'] = False
 mongo = PyMongo(app)
 
+@app.route('/')
+def toppage():
+    return render_template('index.html')
 
-@app.route('/book', methods=['GET'])
-def show_bookinfo():
+@app.route('/book/<isbn>', methods=['GET'])
+def show_bookinfo(isbn):
     if request.method == 'GET':
-        isbn = request.args.get('isbn')
         bookinfo = modules.find_bookinfo_byisbn(isbn)
-        bookinfo = modules.find_bookinfo_byisbn(isbn)
-        del bookinfo['_id']  # json
+        del bookinfo['_id'] # json
         bookinfo = jsonify(bookinfo)
         return bookinfo
 
@@ -43,7 +44,7 @@ def get_status():
     if reading_status is None:
         return abort(404)
     else:
-        del reading_status['_uid']
+        del reading_status['_id']
         return reading_status
 
 

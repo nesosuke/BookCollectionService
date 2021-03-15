@@ -22,7 +22,10 @@ def isISBN13(query):  # ISBN13かどうか判定する
 
 
 def check_none_or_bs4(found_object, default_value=""):  # None/bs4の判定
-    return default_value if found_object is None else found_object.text
+    if found_object is None:
+        return default_value
+    else:
+        found_object.text
 
 
 def 文献情報を自前DBから検索するして一覧にするやつ(タイトル):
@@ -58,8 +61,9 @@ def find_bookinfo_byisbn(isbn):  # Nonetype or dict
             },
             upsert=True
         )
+        bookinfo_inbookDB = mongo.db.bookdb.find_one({'isbn': isbn})
         return bookinfo_fromNDL
-
+        
 
 def find_bookinfo_bytitle(title):  # list
     # 現状bookDBから検索できないのでNDL APIでタイトル検索．
@@ -117,11 +121,12 @@ def update_reading_status(uid, isbn, status):
     return tmp
 
 
-def get_reading_status(uid, isbn): #get_status
-    status_data=mongo.db.statusdb.find_one(
-        {'uid':uid, 'isbn':isbn}
+def get_reading_status(uid, isbn):  # get_status
+    status_data = mongo.db.statusdb.find_one(
+        {'uid': uid, 'isbn': isbn}
     )
     return status_data
+
 
 def 読んだ一覧を持ってくる(uid):
     pass

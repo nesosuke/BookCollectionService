@@ -4,28 +4,30 @@ info:
   description: bookmeterのパクリ
   version: "1.0"
 host: localhost:5000
-basePath: /api/v1
+basePath: /
 schemes:
   - http
   - https
 paths:
-  /book:
+  /book/{ISBN}:
     get:
-      summary: '書籍情報を探す'
+      summary: "書籍情報を探す"
       parameters:
-        - in: "ISBN"
-          name: "q"
+        - in: path
+          name: "ISBN"
           required: true
-      consumes: 
+      consumes:
         - "text/plain"
       produces:
         - "application/json"
       responses:
+        "200":
+          description: "ok"
         "404":
           description: "Not Found"
   /status:
     post:
-      summary: '読了状態を記録する'
+      summary: "読了状態を記録する"
       consumes:
         - "text/plain"
       produces:
@@ -43,4 +45,3 @@ paths:
       responses:
         "401":
           description: "Invalid token"
-
