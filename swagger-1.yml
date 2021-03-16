@@ -1,13 +1,10 @@
-swagger: "2.0"
+openapi: 3.0.0
 info:
   title: bookmeter
   description: bookmeterのパクリ
   version: "1.0"
-host: localhost:5000
-basePath: /
-schemes:
-  - http
-  - https
+servers:
+  - url: http://localhost:5000
 paths:
   /book/{ISBN}:
     get:
@@ -16,32 +13,105 @@ paths:
         - in: path
           name: "ISBN"
           required: true
-      consumes:
-        - "text/plain"
-      produces:
-        - "application/json"
+          schema:
+            type: string
       responses:
         "200":
-          description: "ok"
+          description: "OK. Found."
+          content:
+            application/json:
+              schema:
+                type: "object"
+              example:
+                author: "Lubanovic, Bill"
+                isbn: "9784873117386"
+                permalink: "https://iss.ndl.go.jp/books/R100000074-I000686013-00"
+                series: ""
+                title: "入門Python3"
+                volume: ""
+
         "404":
           description: "Not Found"
+  /book/{ISBN}/update:
+    get:
+      summary: "書籍情報を強制更新"
+      parameters:
+        - in: path
+          name: "ISBN"
+          required: true
+          schema:
+            type: string
+
   /status:
+    get:
+      summary: "読了状態を取得する"
+      parameters:
+        - in: query
+          name: "userID"
+          required: true
+          schema:
+            type: string
+
+        - in: query
+          name: "ISBN"
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+              example:
+                status: "read"
+        "404":
+          description: "Not Found"
+
     post:
       summary: "読了状態を記録する"
-      consumes:
-        - "text/plain"
-      produces:
-        - "application/json"
       parameters:
-        - in: "ISBN"
-          name: "isbn"
+        - in: query
+          name: "ISBN"
           required: true
-        - in: "status"
+          schema:
+            type: string
+        - in: query
           name: "status"
           required: true
-        - name: "token"
-          in: "usertoken"
+          schema:
+            type: string
+          example:
+            - read
+            - reading
+            - unread
+            - wish
+        - in: query
+          name: "Token"
           required: true
+          schema:
+            type: string
       responses:
-        "401":
-          description: "Invalid token"
+        "200":
+          description: "OK. Recorded."
+        "403":
+          description: "Invalid Token."
+  /user/{userID}:
+    get:
+      summary: "読んだ本の一覧"
+      parameters:
+        - in: path
+          name: "userID"
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: "status"
+          schema:
+            type: string
+          example:
+            - "read"
+            - "reading"
+            - "unread"
+            - "wish"
