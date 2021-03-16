@@ -47,7 +47,7 @@ paths:
 
   /status:
     get:
-      summary: "読了状態を取得する"
+      summary: "最新の読了状態を取得する"
       parameters:
         - in: query
           name: "uid"
@@ -68,7 +68,11 @@ paths:
               schema:
                 type: "object"
               example:
-                status: "read"
+                "isbn": "9784873117386"
+                "record_at": "2021/03/16 14:16:42 JST"
+                "status": "reading"
+                "uid": "neso"
+                
         "404":
           description: "Not Found"
 
@@ -127,11 +131,13 @@ paths:
                 type: "object"
                 example:
                   - "isbn": "9784873117386"
-                    "uid": "neso"
+                    "record_at": "2021/03/16 14:16:42 JST"
                     "status": "read"
-                  - "isbn": "9784774183886"
                     "uid": "neso"
+                  - "isbn": "9784774183886"
+                    "record_at": "2021/03/16 14:16:42 JST"
                     "status": "unread"
+                    "uid": "neso"
         "404":
           description: "Not Found"
 
