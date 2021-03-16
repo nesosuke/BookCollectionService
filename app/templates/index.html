@@ -7,21 +7,16 @@
 
     <link rel="stylesheet" href="../static/css/index.css">
     <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
+    <script src="../static/js/index.js"></script>
 </head>
 <header>
-
-    <div class="top-banner">
-        <div class="top-banner-text">読書メーターのパクリ</div>
-    </div>
-</header>
-
-<h1>書籍情報</h1>
-<form action="book" method="GET">
-    <input type="text" >
-    <input type="submit">
-</form>
+</header>　
 
 <body>
+<div class="container" id="app">
+    {{ message }}
+
 </body>
 
 </html>
