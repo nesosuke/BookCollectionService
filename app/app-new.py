@@ -1,71 +1,66 @@
 #!/usr/bin/python3
+from flask import Flask, render_template, request, session, jsonify, abort
+import json
 import requests as req
-from flask import Flask
-from bs4 import BeautifulSoup
 from flask_pymongo import PyMongo
-
+from bs4 import BeautifulSoup
 app = Flask(__name__)
 
 app.secret_key = 'super secret string'  # Change this!
 app.config["MONGO_URI"] = "mongodb://localhost:27017/bookmeter"
+app.config['JSON_AS_ASCII'] = False
 mongo = PyMongo(app)
+
 
 req.packages.urllib3.disable_warnings()
 req.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
 
-
-def isISBN13(query):  # ISBN13かどうか判定する
-    if len(str(query)) == 13:
-        return str.isdecimal(query)
-    else:
-        return False
-
-
-def check_none_or_bs4(found_object, default_value=""):  # None/bs4の判定
-    if found_object is None:
+def bs4totext(bs4object, default_value=""):
+    if bs4object is None:
         return default_value
     else:
-        found_object.text
+        return bs4object.text
 
 
-def 文献情報を自前DBから検索するして一覧にするやつ(タイトル):
-    pass
+def find_bookinfo(isbn, update=False):  # json
+    bookinfo = mongo.db.bookdb.find_one({'isbn': isbn})
+    if bookinfo is None or update:  # NDLから更新する
+        url = 'https://iss.ndl.go.jp/api/opensearch?' + 'isbn=' + isbn
+        res = BeautifulSoup(req.get(url, verify=False).content,
+                            'lxml', from_encoding='utf-8').channel.find('item')
+        # if res is None:  # NDLにも無い
+        #     return None
+        # else:
+            # res = res.find('item')
 
+        title = bs4totext(res.find('dc:title'))
+        author = bs4totext(res.find('dc:creator'))
+        series = bs4totext(res.find('dcndl:seriestitle'))
+        volume = bs4totext(res.find('dcndl:volume'))
+        publisher = bs4totext(res.find('dc:publisher'))
+        permalink = bs4totext(res.find('guid'))
 
-def find_bookinfo_byisbn_fromDB(isbn):  # Nonetype or dict
-    # ISBNがユニークな値であると想定
-    # bookDBからISBNで検索，無ければNDL叩く
-    isbn = str(isbn)
-    bookinfo_inbookDB = mongo.db.bookdb.find_one({'isbn': isbn})
-    return bookinfo_inbookDB
-
-
-def find_bookinfo_byisbn_fromNDL(isbn):
-    url = 'https://iss.ndl.go.jp/api/opensearch?' + 'isbn=' + isbn
-    res = req.get(url, verify=False)
-    bookinfo_fromNDL = BeautifulSoup(
-        res.content, 'lxml', from_encoding='utf-8').channel.find('item')  # dict
-    if bookinfo_fromNDL is None:
-        return None
-    mongo.db.bookdb.find_one_and_update(
-        {'isbn': isbn},
-        {
-            "$set":
+        bookinfo = mongo.db.bookdb.find_one_and_update(
+            {'isbn': isbn},
             {
-                "title": check_none_or_bs4(bookinfo_fromNDL.find('dc:title')),
-                "author": check_none_or_bs4(bookinfo_fromNDL.find('dc:creator')),
-                "series":  check_none_or_bs4(bookinfo_fromNDL.find('dcndl:seriestitle')),
-                "volume":  check_none_or_bs4(bookinfo_fromNDL.find('dcndl:volume'), default_value='1'),
-                "publisher": check_none_or_bs4(bookinfo_fromNDL.find('dc:publisher')),
-                "permalink": check_none_or_bs4(bookinfo_fromNDL.find('guid')),
+                "$set":
+                {
+                    "title": title,
+                    "author": author,
+                    "series": series,
+                    "volume": volume,
+                    "publisher": publisher,
+                    "permalink": permalink,
+                },
             },
-        },
-        upsert=True
-    )
-    return mongo.db.bookdb.find_one({'isbn': isbn})
+            upsert=True
+        )
+
+    del bookinfo['_id']
+    return jsonify(bookinfo)
 
 
-def find_bookinfo_bytitle(title):  # list
+def find_bookinfo_bytitle(title):  # json(list)
     # 現状bookDBから検索できないのでNDL APIでタイトル検索．
     # ｢bookDBで探して，無ければNDLを叩き直す｣挙動にしたい．
 
@@ -107,26 +102,16 @@ def find_bookinfo_bytitle(title):  # list
     return bookinfolist_fromNDL
 
 
-def update_reading_status(uid, isbn, status):
-    tmp = mongo.db.statusdb.find_one_and_update(
-        {'uid': uid, 'isbn': isbn},
-        {
-            "$set":
-                {
-                    'status': status,
-                },
-        },
-        upsert=True
-    )
-    return tmp
+@app.route('/book/<isbn>', methods=['GET'])
+def show_bookinfo(isbn):
+    return find_bookinfo(isbn, update=False)
 
 
-def get_reading_status(uid, isbn):  # get_status
-    status_data = mongo.db.statusdb.find_one(
-        {'uid': uid, 'isbn': isbn}
-    )
-    return status_data
+@app.route('/book/<isbn>/update', methods=['GET'])
+def update_bookinfo(isbn):
+    return find_bookinfo(isbn, update=True)
 
 
-def 読んだ一覧を持ってくる(uid):
-    pass
+
+if __name__ == "__main__":
+    app.run(debug=True)

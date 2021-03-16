@@ -18,9 +18,9 @@ def toppage():
 def show_bookinfo(isbn):
     if request.method == 'GET':
         bookinfo = modules.find_bookinfo_byisbn(isbn)
-        del bookinfo['_id'] # json
-        bookinfo = jsonify(bookinfo)
-        return bookinfo
+        # del bookinfo['_id'] # json
+        # bookinfo = jsonify(bookinfo)
+        return str(bookinfo)
 
 
 @app.route('/search', methods=['GET'])
