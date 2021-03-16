@@ -4,6 +4,7 @@ import json
 import requests as req
 from flask_pymongo import PyMongo
 from bs4 import BeautifulSoup
+import datetime
 app = Flask(__name__)
 
 app.secret_key = 'super secret string'  # Change this!
@@ -102,6 +103,9 @@ def getISBNs_bytitle_fromNDL(title):  # json(list)
         )
     return bookinfolist_fromNDL  # json
 
+@app.route('/')
+def toppage():
+    return render_template('index.html')
 
 @app.route('/book/<isbn>', methods=['GET'])
 def show_bookinfo(isbn):
@@ -124,15 +128,18 @@ def get_reading_status():
 
 
 @app.route('/status', methods=['POST'])
-def update_reading_status():
+def insert_reading_status():
     isbn = request.args.get('isbn')
     uid = request.args.get('uid')
     status = request.args.get('status')
-
-    mongo.db.statusdb.find_one_and_update(
-        {'isbn': isbn, 'uid': uid},
-        {"$set": {'status': status}, },
-        upsert=True
+    time_now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+    mongo.db.statusdb.insert_one(
+        {
+            'isbn': isbn,
+            'uid': uid,
+            'status': status,
+            'record_at': time_now,
+        },
     )
     reading_status = mongo.db.statusdb.find_one({'isbn': isbn, 'uid': uid})
     del reading_status['_id']
