@@ -10,7 +10,7 @@ Flask-PyMongo==2.3.0
 idna==2.10
 isort==5.6.4
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 lazy-object-proxy==1.4.3
 lxml==4.6.2
 MarkupSafe==1.1.1
