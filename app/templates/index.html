@@ -17,19 +17,21 @@
     </p>
 
     <div id="bookinfoResult">
+        <p>書名: <span id='booktitle'>
+        </p>
     </div>
 
     <script>
         async function findBookinfo() {
             const isbn = document.forms.inputISBN.isbn.value;
             const url = 'http://localhost:5000/book/' + isbn;
-            const bookinfo = await fetch(url).then(response => response.text());
-            document.getElementById('bookinfoResult').textContent = bookinfo;
+            const bookinfo = await fetch(url).then(response => response.json());
+
+            const title = bookinfo['title'];
+
+            document.getElementById('booktitle').textContent = title;
         }
     </script>
-
-    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="../static/js/index.js"></script> -->
 </body>
 
 </html>
