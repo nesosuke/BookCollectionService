@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from re import T
 from flask import Flask, render_template, request, session, jsonify, abort
 import json
 import requests as req
@@ -103,9 +104,11 @@ def getISBNs_bytitle_fromNDL(title):  # json(list)
         )
     return bookinfolist_fromNDL  # json
 
+
 @app.route('/')
 def toppage():
     return render_template('index.html')
+
 
 @app.route('/book/<isbn>', methods=['GET'])
 def show_bookinfo(isbn):
@@ -123,6 +126,8 @@ def get_reading_status():
     uid = request.args.get('uid')
 
     reading_status = mongo.db.statusdb.find_one({'isbn': isbn, 'uid': uid})
+    if reading_status is None:
+        return None
     del reading_status['_id']
     return reading_status
 
@@ -133,16 +138,22 @@ def insert_reading_status():
     uid = request.args.get('uid')
     status = request.args.get('status')
     time_now = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-    mongo.db.statusdb.insert_one(
+    mongo.db.statusdb.find_one_and_update(
+        {'isbn': isbn, 'uid': uid},
         {
-            'isbn': isbn,
-            'uid': uid,
-            'status': status,
-            'record_at': time_now,
-        },
+            "$set":
+         {
+             'isbn': isbn,
+             'uid': uid,
+             'status': status,
+             'record_at': time_now,
+         }
+         },
+        upsert=True
     )
     reading_status = mongo.db.statusdb.find_one({'isbn': isbn, 'uid': uid})
-    del reading_status['_id']
+    if reading_status['_id'] is not None:
+        del reading_status['_id']
     return reading_status
 
 
